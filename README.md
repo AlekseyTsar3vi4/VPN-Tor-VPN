@@ -74,8 +74,6 @@ vpn-tor-vpn-chain/
 │   ├── setup_exit_node.sh    # VPS2 (Tor Exit)
 │   ├── post_tor_to_vpn.sh    # VPS2 → VPS3
 │   └── setup_final_vpn.sh    # VPS3
-└── configs/
-└── example.ovpn              # VPN client config (template)
 ```
 
 ---

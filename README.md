@@ -82,93 +82,116 @@ vpn-tor-vpn-chain/
 
 ## 🛠️ Setup Instructions
 
-### 🖥️ Step 1 - VPS2 — Configure Tor Exit Node
+This guide details the steps to set up a VPN -> Tor -> VPN chain using three separate VPS instances. The scripts provided automate most of the installation and configuration process.
+
+## Prerequisites
+
+Before you begin, ensure you have the following:
+
+* **Three (3) separate VPS instances**, each running **Ubuntu 22.04 LTS**:
+    * **VPS1**: Will host the Entry OpenVPN Server (acting as a Tor Proxy).
+    * **VPS2**: Will host the Public Tor Exit Node and run an OpenVPN client connecting to VPS3.
+    * **VPS3**: Will host the Final OpenVPN Server (the final VPN exit point).
+* **`wget`** installed on all three VPS instances. This is the only package you need to install manually.
+
+### Install `wget`
+
+Connect to **each** of your three VPS instances via SSH and run the following command:
+
 ```
-scripts/setup_exit_node.sh
+sudo apt update && sudo apt install wget -y
 ```
-##### What this does:
 
-- Installs and configures Tor
-- Asks you to set a nickname and control port password
-- Configures it as a full Tor exit relay (not just a proxy)
-- Exit policy: allows web and SSH, blocks abuse ports
-- Uploads to metrics.torproject.org
+Once wget is installed, you can proceed with the setup steps below. You will download and run the necessary setup scripts directly from this repository using wget.
 
-##### Important!
-##### 🕓 Wait ~ 120 minutes for the node to appear online (you should be able to find you node here: [Relay Search](https://metrics.torproject.org/rs.html#) and marked as:
+## Setup Steps
 
-![image](https://github.com/user-attachments/assets/991da134-4cee-4455-aef7-5b0fec09404b)
+Follow these steps in the specified order.
 
+### 1. Configure VPS2 — Public Tor Exit Node
 
-### 🌐 Step 2 - VPS1 — Entry VPN Server with Tor Routing 
-```
-scripts/setup_entry_vpn.sh
-```
-##### This script:
+First, set up the Tor exit node on VPS2.
 
-- Installs OpenVPN
-💡 During setup, you will be prompted by an interactive OpenVPN installer. **Please make sure to:**
-  - Select TCP when asked for the protocol
-  - Choose port 1194 for OpenVPN
-  - Select system default resolver for DNS (not Google or Cloudflare)
-  - When prompted, enter a filename for the .ovpn client config (e.g. vpn1client.ovpn)
-- Uses /etc/openvpn/server.conf
-- Routes VPN traffic to:
-  - Tor's TransPort → for TCP redirection
-  - Tor's DNSPort → for DNS queries
-- Adds torrc entries:
-  - When prompted, enter a nickname or IP address of you Exit Node created in the previous step. 
-```
-VirtualAddrNetwork 10.192.0.0/10
-AutomapHostsOnResolve 1
-DNSPort 10.8.0.1:53530
-TransPort 10.8.0.1:9040
-ExitNodes <nickname or IP address of the exit node>
-StrictNodes 1 <this explicitly tells to use only exit node specified in <ExitNodes> entry>
-```
-- Output: A .ovpn client config file will be generated.
+1.  SSH into VPS2.
+2.  Download, make executable, and run the `setup_exit_node.sh` script:
 
-##### Important!
-##### 📥 Download it to your local PC and use it to connect!
+    ```
+    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/setup_exit_node.sh -O setup_exit_node.sh
+    chmod +x setup_exit_node.sh
+    sudo ./setup_exit_node.sh
+    ```
+3.  During the script execution, you will be prompted for:
+    * A **Nickname** for your Tor exit node (e.g., `MyAwesomeExit`).
+    * A **Password** for the Tor ControlPort. **Make sure to save this password securely.**
+4.  After the script finishes:
+    * Wait approximately **60–180 minutes** for your node to integrate into the Tor network.
+    * You can check if your node is visible on the Tor Metrics page: <https://metrics.torproject.org/rs.html#/> (Search for your Nickname or IP address).
 
-### 🔒 Step 3 - VPS3 — Final VPN Server
-```
-bash scripts/setup_final_vpn.sh
-```
-##### This sets up:
+### 2. Configure VPS1 — Entry VPN Server (Tor Proxy)
 
-- OpenVPN Server. During setup, you will be prompted by an interactive OpenVPN installer (Same as on VPS1).
+Next, set up the entry OpenVPN server on VPS1. This server will route traffic through the Tor network (specifically, aiming for your exit node on VPS2).
 
-##### Please make sure to:
-  - Select TCP when asked for the protocol
-  - Choose port 1194 for OpenVPN
-  - Select system default resolver for DNS (not Google or Cloudflare)
-  - When prompted, enter a filename for the .ovpn client config (e.g. vpn1client.ovpn)
-- Generates a client .ovpn file
+1.  SSH into VPS1.
+2.  Download, make executable, and run the `setup_entry_vpn.sh` script:
 
-##### Important!
-##### 📤 Upload the .ovpn config to VPS2 (e.g. via scp, winscp or nano paste)
+    ```
+    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/setup_entry_vpn.sh -O setup_entry_vpn.sh
+    chmod +x setup_entry_vpn.sh
+    sudo ./setup_entry_vpn.sh
+    ```
+3.  During the interactive OpenVPN installer part of the script:
+    * **Select protocol**: `TCP`
+    * **Port**: `1194` (or your preferred port)
+    * **DNS**: Use the system default resolver (or choose another option if preferred).
+    * **Client name**: Enter a descriptive name for your client configuration file (e.g., `vpn1-client`). The script will automatically append `.ovpn`.
+4.  After setup:
+    * The script will tell you the location of the generated `.ovpn` client configuration file (e.g., `/root/vpn1-client.ovpn`).
+    * Download this `.ovpn` file from VPS1 to your local computer (using `scp` or an SFTP client (e.g. WinSCP)).
+    * You will use this file with an OpenVPN client (like the OpenVPN Community Client) on your local machine to connect to the VPN->Tor->VPN chain.
 
-### 🔁 Step 4 - VPS2 — Route Tor Exit Traffic into Final VPN
+### 3. Configure VPS3 — Final VPN Server (Exit Point)
 
-Open a new Terminal session and run:
-```
-bash scripts/post_tor_to_vpn.sh
-```
-##### What this does:
+Now, set up the final OpenVPN server on VPS3. This is the server that your Tor exit node (VPS2) will connect to.
 
-- Installs OpenVPN client + systemd DNS hooks
-- Injects DNS leak protection into the .ovpn before verb 3
-- Detects:
-  - Public IP (eth0)
-  - Default gateway
-  - Network CIDR
-- Shows the current routing table
-- Prompts you:
-Does this match your address schema based on the routing table? [y/N]
-  - ✅ If yes → Applies ip rule and ip route entries to table 128
-  - ❌ If no → Exits cleanly for manual intervention
-- Starts OpenVPN client and forwards all Tor exit traffic to final VPN (VPS3)
+1.  SSH into VPS3.
+2.  Download, make executable, and run the `setup_final_vpn.sh` script:
+
+    ```
+    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/setup_final_vpn.sh -O setup_final_vpn.sh
+    chmod +x setup_final_vpn.sh
+    sudo ./setup_final_vpn.sh
+    ```
+3.  During the interactive OpenVPN installer part of the script:
+    * **Select protocol**: `TCP`
+    * **Port**: `1194` (or your preferred port)
+    * **DNS**: Use the system default resolver.
+    * **Client name**: Enter a descriptive name (e.g., `vpn3-client-for-vps2`). The script will automatically append `.ovpn`.
+4.  After setup:
+    * Note the location of the generated `.ovpn` client file (e.g., `/root/vpn3-client-for-vps2.ovpn`).
+    * Download this `.ovpn` file from VPS3 to your local computer.
+    * Upload this `.ovpn` file from your local computer to VPS2 (e.g., into the `/root/` directory using `scp` or SFTP). You will need the path to this file in the next step.
+
+### 4. Configure VPS2 — Route Tor Exit Through Final VPN
+
+Finally, configure VPS2 to connect to the VPN server on VPS3 and route its Tor exit traffic through that VPN connection.
+
+1.  SSH back into VPS2.
+2.  Download, make executable, and run the `post_tor_to_vpn.sh` script:
+
+    ```
+    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/post_tor_to_vpn.sh -O post_tor_to_vpn.sh
+    chmod +x post_tor_to_vpn.sh
+    sudo ./post_tor_to_vpn.sh
+    ```
+3.  When prompted:
+    * Enter the **full path** to the `.ovpn` configuration file you uploaded to VPS2 in the previous step (e.g., `/root/vpn3-client-for-vps2.ovpn`).
+4.  The script will perform the following actions:
+    * Patch the provided `.ovpn` file to prevent DNS leaks.
+    * Display your current public IP, gateway, and network range for reference.
+    * Preview the routing table changes it intends to make.
+    * Ask for your confirmation before applying the routing changes and starting the OpenVPN client connection to VPS3.
+
+Setup is now complete.
 ---
 ### 🔍 Testing the Chain
 
@@ -180,6 +203,9 @@ https://browserleaks.com/ip
 ##### No WebRTC/DNS leaks
 https://dnsleaktest.com
 
+---
 ### 📜 License
-MIT — free to study, fork, adapt, and deploy.
-Created as part of a Cyber Security Final Year Project — designed for both research and real-world deployment use.
+MIT License — open for educational, research, and privacy-aware personal use.
+
+Designed, implemented and tested as a Cybersecurity Final Year Project
+Focused on advanced anonymity systems, ethical deployment, and anti-surveillance techniques.

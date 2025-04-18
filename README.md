@@ -133,7 +133,7 @@ Next, set up the entry OpenVPN server on VPS1. This server will route traffic th
 2.  Download, make executable, and run the `setup_entry_vpn.sh` script:
 
     ```
-    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/setup_entry_vpn.sh -O setup_entry_vpn.sh
+    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/scripts/setup_entry_vpn.sh -O setup_entry_vpn.sh
     chmod +x setup_entry_vpn.sh
     sudo ./setup_entry_vpn.sh
     ```
@@ -155,7 +155,7 @@ Now, set up the final OpenVPN server on VPS3. This is the server that your Tor e
 2.  Download, make executable, and run the `setup_final_vpn.sh` script:
 
     ```
-    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/setup_final_vpn.sh -O setup_final_vpn.sh
+    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/scripts/setup_final_vpn.sh -O setup_final_vpn.sh
     chmod +x setup_final_vpn.sh
     sudo ./setup_final_vpn.sh
     ```
@@ -177,7 +177,7 @@ Finally, configure VPS2 to connect to the VPN server on VPS3 and route its Tor e
 2.  Download, make executable, and run the `post_tor_to_vpn.sh` script:
 
     ```
-    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/post_tor_to_vpn.sh -O post_tor_to_vpn.sh
+    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/scripts/post_tor_to_vpn.sh -O post_tor_to_vpn.sh
     chmod +x post_tor_to_vpn.sh
     sudo ./post_tor_to_vpn.sh
     ```

@@ -17,7 +17,7 @@ It leverages:
 
 **Traffic Flow Explanation:**
 
-1.  **Your PC:** Connects to VPS 1 using an OpenVPN client configuration.
+1.  **USER (PC/Smartphone anything that support OpenVPN):** Connects to VPS 1 using an OpenVPN client configuration.
 2.  **VPS 1 (Entry VPN Server):** Receives traffic via OpenVPN, then transparently routes it into the Tor network, directing it specifically towards your self-hosted Tor exit node (VPS 2).
 3.  **VPS 2 (Tor Exit Node):** Traffic exits the Tor network here. This VPS then immediately connects as an OpenVPN *client* to VPS 3.
 4.  **VPS 3 (Final VPN Server):** Receives traffic from VPS 2 via OpenVPN and sends it to the final internet destination. Your public IP appears as VPS 3's IP address.

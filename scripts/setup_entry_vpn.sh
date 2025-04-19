@@ -5,40 +5,31 @@ export DEBIAN_FRONTEND=noninteractive
 
 echo -e "\n=== VPS 1 :: VPN Entry Node Setup ==="
 
-echo "[+] Updating system..."
+echo "[+] Updating system packages..."
 apt update -qq
 apt dist-upgrade -y -qq
 
-echo "[+] Downloading OpenVPN install script..."
+echo "[+] Installing OpenVPN via Road Warrior script (manual interaction required)..."
 wget -q https://git.io/vpn -O openvpn-install.sh
 chmod +x openvpn-install.sh
-
-echo "[+] Predefining OpenVPN install options..."
-cat <<EOF > .openvpn-install.conf
-AUTO_INSTALL=y
-PROTOCOL=tcp
-PORT=1194
-DNS=1
-CLIENT=vpn1client
-EOF
-
-echo "[+] Installing OpenVPN using predefined config (TCP/1194, system DNS)..."
 ./openvpn-install.sh
 
-echo "[+] OpenVPN installed successfully."
-echo "[i] Client config generated at: /root/vpn1client.ovpn"
-echo "[i] Please download this file to your local machine and test the VPN connection."
+echo ""
+echo "[✔] OpenVPN installed."
+echo "[i] After the script finishes, your .ovpn file is usually saved at: /root/<your-client-name>.ovpn. Please download that file to your local PC and test it."
 
-echo "[+] Installing Tor and iptables-persistent..."
+echo ""
+echo "[+] Installing Tor and iptables-persistent for redirection..."
 apt install -y -qq tor iptables-persistent
 
 echo "[+] Cleaning up default torrc..."
 rm -f /etc/tor/torrc
 
-read -rp "[?] Enter Nickname or IP of your Tor Exit Node (VPS2): " TOR_EXIT
+read -rp "[?] Enter the Nickname or IP of your Tor Exit Node (e.g. SecretExitNode or 123.45.67.89): " TOR_EXIT
 
-echo "[+] Writing new torrc config to route VPN traffic through VPS2 exit..."
+echo "[+] Writing torrc configuration..."
 cat <<EOF > /etc/tor/torrc
+
 VirtualAddrNetwork 10.192.0.0/10
 AutomapHostsOnResolve 1
 DNSPort 10.8.0.1:53530
@@ -47,7 +38,7 @@ ExitNodes $TOR_EXIT
 StrictNodes 1
 EOF
 
-echo "[+] Configuring iptables to redirect VPN traffic to Tor..."
+echo "[+] Setting up iptables to redirect VPN traffic through Tor..."
 IPT=/sbin/iptables
 OVPN=tun0
 
@@ -56,11 +47,11 @@ $IPT -t nat -A PREROUTING -i $OVPN -p udp --dport 53 -s 10.8.0.0/24 -j DNAT --to
 $IPT -t nat -A PREROUTING -i $OVPN -p tcp -s 10.8.0.0/24 -j DNAT --to 10.8.0.1:9040
 $IPT -t nat -A PREROUTING -i $OVPN -p udp -s 10.8.0.0/24 -j DNAT --to 10.8.0.1:9040
 
-echo "[+] Saving firewall rules..."
+echo "[+] Saving iptables rules..."
 iptables-save > /etc/iptables/rules.v4
 
 echo ""
 echo "[✔] VPS1 Setup Complete."
-echo "[i] Start Tor manually with: tor"
-echo "[i] Connect from your PC using: /root/vpn1client.ovpn file"
-echo "[i] Your traffic should route: [PC] → VPN (VPS1) → TOR Exit (VPS2)"
+echo "[i] Start Tor manually using: tor"
+echo "[i] Then connect from your PC using your OpenVPN config file"
+echo "[i] Your traffic should now route: [PC] → VPN (VPS1) → Tor Exit (VPS2)"

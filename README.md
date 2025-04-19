@@ -114,7 +114,7 @@ First, set up the Tor exit node on VPS2.
 2.  Download, make executable, and run the `setup_exit_node.sh` script:
 
     ```
-    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/setup_exit_node.sh -O setup_exit_node.sh
+    wget https://raw.githubusercontent.com/AlekseyTsar3vi4/VPN-Tor-VPN/main/scripts/setup_exit_node.sh -O setup_exit_node.sh
     chmod +x setup_exit_node.sh
     sudo ./setup_exit_node.sh
     ```

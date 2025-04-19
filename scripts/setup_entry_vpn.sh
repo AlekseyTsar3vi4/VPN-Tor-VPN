@@ -16,7 +16,6 @@ chmod +x openvpn-install.sh
 
 echo ""
 echo "[✔] OpenVPN installed."
-echo "[i] After the script finishes, your .ovpn file is usually saved at: /root/<your-client-name>.ovpn. Please download that file to your local PC and test it."
 
 echo ""
 echo "[+] Installing Tor and iptables-persistent for redirection..."
@@ -50,8 +49,11 @@ $IPT -t nat -A PREROUTING -i $OVPN -p udp -s 10.8.0.0/24 -j DNAT --to 10.8.0.1:9
 echo "[+] Saving iptables rules..."
 iptables-save > /etc/iptables/rules.v4
 
+echo "[+] Almost done... Enabling and starting Tor..."
+service tor restart
+service tor status
+
 echo ""
-echo "[✔] VPS1 Setup Complete."
-echo "[i] Start Tor manually using: tor"
-echo "[i] Then connect from your PC using your OpenVPN config file"
-echo "[i] Your traffic should now route: [PC] → VPN (VPS1) → Tor Exit (VPS2)"
+echo "[i] Done!!! Your .ovpn file is usually saved at: /root/<your-client-name>.ovpn. Please download that file to your local machine"
+echo "[i] Connect from your PC using that OpenVPN config file"
+echo "[✔] VPS1 Setup Complete. After connecting, Your traffic should now route: [PC] → VPN (VPS1) → Tor Exit (VPS2)"

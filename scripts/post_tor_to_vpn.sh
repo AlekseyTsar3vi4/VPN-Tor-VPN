@@ -3,85 +3,50 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
-echo -e "\n=== VPS 1 :: VPN Entry Node Setup ==="
+echo -e "\n=== VPS2 :: Final VPN Layer – Post-Tor Routing Setup ==="
 
-echo "[+] Updating system packages..."
-apt update -qq
-apt dist-upgrade -y -qq
+read -rp "[?] Enter path to your VPS3 client config (e.g. /root/vps3client.ovpn): " OVPN_PATH
 
-echo "[+] Installing OpenVPN via Road Warrior script (manual interaction required)..."
-wget -q https://git.io/vpn -O openvpn-install.sh
-chmod +x openvpn-install.sh
-./openvpn-install.sh
+echo "[+] Installing OpenVPN client and DNS protection tools..."
+apt install -y -qq openvpn openvpn-systemd-resolved iptables-persistent net-tools psmisc
+
+echo "[+] Inserting DNS leak protection hooks (before 'verb 3')..."
+sed -i '/verb 3/i \
+script-security 2\n\
+up /etc/openvpn/update-systemd-resolved\n\
+down /etc/openvpn/update-systemd-resolved\n\
+down-pre\n\
+dhcp-option DOMAIN-ROUTE\n' "$OVPN_PATH"
+
+echo -e "\n=== 🧭 CURRENT NETWORK INFO ==="
+ip -4 addr show eth0
+ip route
+
+# Detect proper public IP and CIDR
+VPS2_IP=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -Ev '^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)' | head -n 1)
+GATEWAY=$(ip route | awk '/^default/ && $5=="eth0" {print $3}')
+NETWORK_CIDR=$(ip route show dev eth0 | awk '{print $1}' | grep '/' | grep -v '^10\.' | head -n 1)
+
+echo -e "\n=== 📝 ROUTING PREVIEW (table 128) ==="
+echo "ip rule add from $VPS2_IP table 128"
+echo "ip route add table 128 $NETWORK_CIDR dev eth0"
+echo "ip route add table 128 default via $GATEWAY"
 
 echo ""
-echo "[✔] OpenVPN installed."
+read -rp "[?] Does this match your address schema based on the routing table above? [y/N]: " CONFIRM
 
-echo "[+] Applying OpenVPN log sanitisation..."
-CONF_PATH="/etc/openvpn/server.conf"
-if [ -f "$CONF_PATH" ]; then
-  sed -i '/^log /d' "$CONF_PATH"
-  sed -i '/^status /d' "$CONF_PATH"
-  sed -i '/^log-append /d' "$CONF_PATH"
-  sed -i '/^verb /d' "$CONF_PATH"
+if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
+    echo "[✔] Applying routing rules now..."
+    ip rule add from "$VPS2_IP" table 128 || echo "[i] Rule already exists."
+    ip route add table 128 "$NETWORK_CIDR" dev eth0 || echo "[i] Route already exists."
+    ip route add table 128 default via "$GATEWAY" dev eth0 || echo "[i] Default route already exists."
+    iptables-save > /etc/iptables/rules.v4
+    echo "[✔] Routing table updated."
+else
+    echo "[!] Aborted. Please update routes manually if detection didn’t match."
+    exit 1
 fi
 
-cat <<EOF >> "$CONF_PATH"
-
-# Log sanitisation settings
-log /dev/null
-status /dev/null
-log-append /dev/null
-verb 0
-
-EOF
-
-echo "[+] Enforcing journald volatile logging (RAM-only, no disk persistence)..."
-mkdir -p /etc/systemd/journald.conf.d
-cat <<EOF > /etc/systemd/journald.conf.d/privacy.conf
-[Journal]
-Storage=volatile
-Compress=no
-EOF
-systemctl restart systemd-journald
-
-echo ""
-echo "[+] Installing Tor and iptables-persistent for redirection..."
-apt install -y -qq tor iptables-persistent
-
-echo "[+] Cleaning up default torrc..."
-rm -f /etc/tor/torrc
-
-read -rp "[?] Enter the Nickname or IP of your Tor Exit Node (e.g. SecretExitNode or 123.45.67.89): " TOR_EXIT
-
-echo "[+] Writing torrc configuration..."
-cat <<EOF > /etc/tor/torrc
-
-VirtualAddrNetwork 10.192.0.0/10
-AutomapHostsOnResolve 1
-DNSPort 10.8.0.1:53530
-TransPort 10.8.0.1:9040
-ExitNodes $TOR_EXIT
-StrictNodes 1
-EOF
-
-echo "[+] Setting up iptables to redirect VPN traffic through Tor..."
-IPT=/sbin/iptables
-OVPN=tun0
-
-$IPT -A INPUT -i $OVPN -s 10.8.0.0/24 -m state --state NEW -j ACCEPT
-$IPT -t nat -A PREROUTING -i $OVPN -p udp --dport 53 -s 10.8.0.0/24 -j DNAT --to 10.8.0.1:53530
-$IPT -t nat -A PREROUTING -i $OVPN -p tcp -s 10.8.0.0/24 -j DNAT --to 10.8.0.1:9040
-$IPT -t nat -A PREROUTING -i $OVPN -p udp -s 10.8.0.0/24 -j DNAT --to 10.8.0.1:9040
-
-echo "[+] Saving iptables rules..."
-iptables-save > /etc/iptables/rules.v4
-
-echo "[+] Almost done... Enabling and starting Tor..."
-systemctl restart tor
-systemctl status tor
-
-echo ""
-echo "[i] Done!!! Your .ovpn file is usually saved at: /root/<your-client-name>.ovpn. Please download that file to your local machine"
-echo "[i] Connect from your PC using that OpenVPN config file"
-echo "[✔] VPS1 Setup Complete. After connecting, Your traffic should now route: [PC] → VPN (VPS1) → Tor Exit (VPS2)"
+echo -e "\n[i] Launching OpenVPN client (connecting to VPS3)..."
+sleep 2
+exec openvpn --config "$OVPN_PATH"

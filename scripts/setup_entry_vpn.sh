@@ -17,6 +17,34 @@ chmod +x openvpn-install.sh
 echo ""
 echo "[✔] OpenVPN installed."
 
+echo "[+] Applying OpenVPN log sanitisation..."
+CONF_PATH="/etc/openvpn/server.conf"
+if [ -f "$CONF_PATH" ]; then
+  sed -i '/^log /d' "$CONF_PATH"
+  sed -i '/^status /d' "$CONF_PATH"
+  sed -i '/^log-append /d' "$CONF_PATH"
+  sed -i '/^verb /d' "$CONF_PATH"
+fi
+
+cat <<EOF >> "$CONF_PATH"
+
+# Log sanitisation settings
+log /dev/null
+status /dev/null
+log-append /dev/null
+verb 0
+
+EOF
+
+echo "[+] Enforcing journald volatile logging (RAM-only, no disk persistence)..."
+mkdir -p /etc/systemd/journald.conf.d
+cat <<EOF > /etc/systemd/journald.conf.d/privacy.conf
+[Journal]
+Storage=volatile
+Compress=no
+EOF
+systemctl restart systemd-journald
+
 echo ""
 echo "[+] Installing Tor and iptables-persistent for redirection..."
 apt install -y -qq tor iptables-persistent
@@ -50,8 +78,8 @@ echo "[+] Saving iptables rules..."
 iptables-save > /etc/iptables/rules.v4
 
 echo "[+] Almost done... Enabling and starting Tor..."
-service tor restart
-service tor status
+systemctl restart tor
+systemctl status tor
 
 echo ""
 echo "[i] Done!!! Your .ovpn file is usually saved at: /root/<your-client-name>.ovpn. Please download that file to your local machine"

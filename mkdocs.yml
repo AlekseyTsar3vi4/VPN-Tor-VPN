@@ -1,0 +1,8 @@
+site_name: VPN-Tor-VPN: Multi-Layered Privacy Chain
+theme:
+  name: material
+nav:
+  - Home: README.md
+  - Artefacts: artefacts/
+  - Datasets: datasets/
+  - Scripts: scripts/

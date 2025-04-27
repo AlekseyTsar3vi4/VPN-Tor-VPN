@@ -1,0 +1,61 @@
+Configuration,Period,Run,Download_Mbps,Upload_Mbps,Latency_ms
+Baseline,Morning,1,75.1,18.9,6.8
+Baseline,Morning,2,73.6,18.5,6.3
+Baseline,Morning,3,76.2,19.1,7.2
+Baseline,Morning,4,74.9,18.6,6.6
+Baseline,Morning,5,72.8,18.4,6.5
+Baseline,Midday,1,74.4,18.8,7
+Baseline,Midday,2,73.1,18.2,6.7
+Baseline,Midday,3,74.7,18.7,6.9
+Baseline,Midday,4,76,19,7.1
+Baseline,Midday,5,73.3,18.3,6.4
+Baseline,Evening,1,72.6,18.1,7.3
+Baseline,Evening,2,74,18.4,6.8
+Baseline,Evening,3,75.2,18.9,6.6
+Baseline,Evening,4,73.7,18.6,6.5
+Baseline,Evening,5,74.1,18.7,6.9
+VPN Only,Morning,1,70.3,17.6,24.9
+VPN Only,Morning,2,68.9,17.3,25.8
+VPN Only,Morning,3,69.7,17,26.4
+VPN Only,Morning,4,70.8,17.5,27.2
+VPN Only,Morning,5,71.1,17.8,26
+VPN Only,Midday,1,70.5,17.7,25.1
+VPN Only,Midday,2,69.3,17.2,25.6
+VPN Only,Midday,3,68.7,17,24.5
+VPN Only,Midday,4,71.2,17.9,26.3
+VPN Only,Midday,5,70.1,17.5,25.7
+VPN Only,Evening,1,68.4,16.8,27.4
+VPN Only,Evening,2,69.9,17.1,28.5
+VPN Only,Evening,3,70,17.2,29.1
+VPN Only,Evening,4,67.7,16.5,34.2
+VPN Only,Evening,5,68.8,16.9,27.3
+VPN - Tor,Morning,1,23.2,14.2,123.6
+VPN - Tor,Morning,2,22.1,13.7,126.9
+VPN - Tor,Morning,3,21.6,13.6,129.2
+VPN - Tor,Morning,4,22.5,14,124.4
+VPN - Tor,Morning,5,23.4,14.4,128
+VPN - Tor,Midday,1,22.6,13.9,133.2
+VPN - Tor,Midday,2,21.8,13.6,135.5
+VPN - Tor,Midday,3,23,14.3,140.3
+VPN - Tor,Midday,4,22.3,13.8,138.7
+VPN - Tor,Midday,5,20.9,13.4,142.1
+VPN - Tor,Evening,1,19.4,12.5,275
+VPN - Tor,Evening,2,20.2,12.8,300.4
+VPN - Tor,Evening,3,18.7,12,322.7
+VPN - Tor,Evening,4,21.1,13,153.2
+VPN - Tor,Evening,5,17.8,11.7,188.2
+VPN - Tor - VPN,Morning,1,22.8,13.9,124.1
+VPN - Tor - VPN,Morning,2,22,13.7,125.3
+VPN - Tor - VPN,Morning,3,22.9,14,128.2
+VPN - Tor - VPN,Morning,4,21.5,13.4,129.9
+VPN - Tor - VPN,Morning,5,22.3,13.8,123.4
+VPN - Tor - VPN,Midday,1,22.1,13.6,133.6
+VPN - Tor - VPN,Midday,2,23,14.1,137.5
+VPN - Tor - VPN,Midday,3,21.9,13.5,136
+VPN - Tor - VPN,Midday,4,22.7,13.9,140.1
+VPN - Tor - VPN,Midday,5,22.4,13.8,135.4
+VPN - Tor - VPN,Evening,1,20.4,12.6,288.7
+VPN - Tor - VPN,Evening,2,21.3,13.1,301.6
+VPN - Tor - VPN,Evening,3,19.8,12.3,320.5
+VPN - Tor - VPN,Evening,4,20.6,12.9,295.2
+VPN - Tor - VPN,Evening,5,18.9,11.9,410.4

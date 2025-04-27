@@ -1,0 +1,7 @@
+SHA-256 Checksums for Artefacts:
+
+clienttest.ovpn
+bfc242bc957420d7785dff8a8a7ecb97ac7e871e352b3d57d7eee9d472cb2925
+
+exittovpn.ovpn
+430a6c062bb06d3ee44590b01d689d64fdcdefb40ba47e6b9f1485dedd7ba59d

@@ -79,7 +79,7 @@ Before you begin, ensure you have the following:
     * **VPS3**: Will host the Final OpenVPN Server (the final VPN exit point).
 * **`wget`** installed on all three VPS instances.
 
-### Install `wget`
+#### Install `wget`
 
 Connect to **each** of your three VPS instances via SSH and run the following command:
 

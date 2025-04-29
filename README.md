@@ -1,4 +1,4 @@
-# 🛡️ VPN → Tor Exit → VPN Chain: Multi-Hop Anonymity System
+# VPN → Tor Exit → VPN Chain: Multi-Hop Anonymity System
 
 This project was developed as part of a **Final Year Project (FYP)** in Cybersecurity, aiming to implement and test a resilient multi-hop traffic obfuscation model combining VPN and Tor in a layered privacy chain.
 
@@ -11,7 +11,7 @@ It leverages:
 
 ---
 
-## 🔁 Architecture Diagram
+## Architecture Diagram
 
 ![vpn-tor-vpn-chain](https://github.com/user-attachments/assets/ff9cfd75-095e-4ad2-94df-497d8733a30d)
 
@@ -26,59 +26,46 @@ This design offers **multi-layered anonymity** and mitigates correlation attacks
 
 ---
 
-## 🧪 Testing Environment
+## Testing Environment
 
 The setup was tested on **DigitalOcean** using three VPS instances running **Ubuntu 22.04 LTS**. All configurations were deployed and verified manually and through automation scripts.
 
-> ⚠️ **Important:** While DigitalOcean is suitable for testing, it is not recommended for real-world privacy-critical deployments.
+> **Important:** While DigitalOcean is suitable for testing, it is not recommended for real-world privacy-critical deployments.
 
 ---
 
-## 🛡️ Real-World Deployment Considerations
-
-To harden this system against surveillance and jurisdictional overreach:
-
-### 🌍 Use Privacy-Friendly Jurisdictions
-
-Deploy VPS servers in countries with **strong privacy laws** that are:
-- **Outside the Five Eyes, Nine Eyes, and Fourteen Eyes alliances**
-- Not known for mandatory data retention laws
-- Not cooperating with mass surveillance programmes
-
-**Example provider:**
-🔗 [https://1984.hosting/](https://1984.hosting/) — based in Iceland, known for strong privacy policies
-
----
-
-### 🔐 Maintain Proper Operational Security (OpSec)
-
-To maintain anonymity and reduce traceability:
-- Never use your **real name, phone number, or payment details**
-- Use **burner email addresses** (e.g. [SimpleLogin](https://simplelogin.io), [AnonAddy](https://anonaddy.com))
-- Purchase VPS servers with **privacy-preserving cryptocurrencies** such as:
-  - Monero (XMR) — ideal for anonymous payments
-  - Bitcoin via privacy mixers (if Monero is not accepted)
-- Use **hardened devices** or virtual machines for configuration
-- Avoid login from personal or previously linked IP addresses
-- Segment and isolate each VPS for single-purpose usage
-
----
-
-## 📦 Project Structure
+## Project Structure
 
 ```
 vpn-tor-vpn-chain/
-├── README.md
-├── scripts/
-│   ├── setup_entry_vpn.sh    # VPS1
-│   ├── setup_exit_node.sh    # VPS2 (Tor Exit)
-│   ├── post_tor_to_vpn.sh    # VPS2 → VPS3
-│   └── setup_final_vpn.sh    # VPS3
+.
+├── README.md                # Project overview and setup guide
+├── LICENCE.txt              # MIT (code) and CC-BY-4.0 (data) licenses
+├── mkdocs.yml               # Configuration for documentation site
+├── artefacts/               # Configuration files and checksums
+│   ├── clienttest.ovpn      # Sample OpenVPN configuration (educational use only)
+│   ├── exittovpn.ovpn       # Sample OpenVPN configuration (educational use only)
+│   ├── artefacts_README.md  # Atrefacts Disclaimer    
+│   └── checksums.txt        # SHA-256 hashes for artefact integrity
+├── datasets/                # Test data for analysis
+│   ├── iperf_all_measurements.csv  # Performance metrics
+│   ├── timing_attack_pcaps.zip     # Packet captures for correlation tests
+│   ├── vpn1-test.ovpn             # Test configuration
+│   ├── vpn1-weak.ovpn             # Weak configuration for downgrade tests
+│   └── WinMTR_google_test.TXT     # Network diagnostic output
+├── scripts/                 # Deployment automation scripts
+│   ├── setup_entry_vpn.sh   # Configures VPS1 (Entry VPN)
+│   ├── setup_exit_node.sh   # Configures VPS2 (Tor Exit Relay)
+│   ├── post_tor_to_vpn.sh   # Links VPS2 to VPS3 (VPN Client)
+│   └── setup_final_vpn.sh   # Configures VPS3 (Final VPN)
+├── report/                  # Final project report
+│   └── Final_Year_Project_Report_Alexei_Gaicovschi.pdf
+└── mkdocs.yml               # Generated documentation (via mkdocs)
 ```
 
 ---
 
-## 🛠️ Setup Instructions
+## Setup Instructions
 
 This guide details the steps to set up a VPN -> Tor -> VPN chain using three separate VPS instances. The scripts provided automate most of the installation and configuration process.
 
@@ -90,7 +77,7 @@ Before you begin, ensure you have the following:
     * **VPS1**: Will host the Entry OpenVPN Server (acting as a Tor Proxy).
     * **VPS2**: Will host the Public Tor Exit Node and run an OpenVPN client connecting to VPS3.
     * **VPS3**: Will host the Final OpenVPN Server (the final VPN exit point).
-* **`wget`** installed on all three VPS instances. This is the only package you need to install manually.
+* **`wget`** installed on all three VPS instances.
 
 ### Install `wget`
 
@@ -191,19 +178,66 @@ Finally, configure VPS2 to connect to the VPN server on VPS3 and route its Tor e
 
 Setup is now complete.
 ---
-### 🔍 Testing the Chain
+ **Verify Setup**:
+   - Check the Tor relay’s status on [metrics.torproject.org](https://metrics.torproject.org/) using its fingerprint.
+   - Import `vpn1-client.ovpn` to a client device and test connectivity.
 
-#### ✅ What to Expect?
+### Notes
+- Scripts are idempotent and exit non-zero on failure, suitable for automation with tools like Ansible or Terraform.
+- Manual steps (e.g., .ovpn file transfer) ensure deliberate user control.
+- Full documentation is available via `mkdocs serve` for a browsable site.
 
-#### IP of VPS3
-https://browserleaks.com/ip
+## Real-World Deployment Considerations
 
-##### No WebRTC/DNS leaks
-https://dnsleaktest.com
+To harden this system against surveillance and jurisdictional overreach:
+
+### Use Privacy-Friendly Jurisdictions
+
+Deploy VPS servers in countries with **strong privacy laws** that are:
+- **Outside the Five Eyes, Nine Eyes, and Fourteen Eyes alliances**
+- Not known for mandatory data retention laws
+- Not cooperating with mass surveillance programmes
+
+**Example provider:**
+[https://1984.hosting/](https://1984.hosting/) — based in Iceland, known for strong privacy policies
 
 ---
-### 📜 License
-MIT License — open for educational, research, and privacy-aware personal use.
 
-Designed, implemented and tested as a Cybersecurity Final Year Project
-Focused on advanced anonymity systems, ethical deployment, and anti-surveillance techniques.
+### Maintain Proper Operational Security (OpSec)
+
+To maintain anonymity and reduce traceability:
+- Never use your **real name, phone number, or payment details**
+- Use **burner email addresses** (e.g. [SimpleLogin](https://simplelogin.io), [AnonAddy](https://anonaddy.com))
+- Purchase VPS servers with **privacy-preserving cryptocurrencies** such as:
+  - Monero (XMR) — ideal for anonymous payments
+  - Bitcoin via privacy mixers (if Monero is not accepted)
+- Use **hardened devices** or virtual machines for configuration
+- Avoid login from personal or previously linked IP addresses
+- Segment and isolate each VPS for single-purpose usage
+
+## Disclaimer: Educational Use of .ovpn Files
+The `.ovpn` configuration files in the `artefacts/` directory (e.g., `clienttest.ovpn`, `exittovpn.ovpn`) are provided **for educational purposes only**. These files are sample configurations used during testing and **cannot be used to connect to an active VPN-Tor-VPN chain**. They are included to demonstrate the structure and settings of OpenVPN profiles in the context of this project. Users attempting to use these files will not establish a connection, as they lack valid server endpoints and credentials. For a functional setup, follow the deployment steps above to generate your own configurations.
+
+## Testing and Evaluation
+The prototype was tested for:
+- **Performance**: Throughput (~21 Mbps), latency (~195 ms RTT), and variability across daily windows.
+- **Security**: Resistance to DNS/WebRTC leaks, timing-correlation (Pearson ρ = 0.01 with padding), cipher downgrades, and DPI evasion.
+
+Results are detailed in the project report (`report/Final_Year_Project_Report_Alexei_Gaicovschi.pdf`) and supported by raw datasets in `datasets/`.
+
+---
+
+## Documentation
+- **Browsable Site**: Run `mkdocs serve` to view detailed setup guides and code documentation.
+- **Project Report**: See `report/` for the comprehensive FYP report, including methodology, results, and discussion.
+- **Datasets**: Raw CSV and PCAP files in `datasets/` allow for independent analysis.
+
+## License
+- **Code**: MIT License (see `LICENCE.txt`)
+- **Data**: Creative Commons Attribution 4.0 International (CC-BY-4.0)
+
+## Acknowledgments
+This project was conducted under the supervision of Samuel Onalo and Mohammad Heydari at Staffordshire University. Special thanks to the Tor Project and OpenVPN communities for their open-source contributions.
+
+## Contact
+For inquiries, please contact Alexei Gaicovschi via [GitHub Issues](https://github.com/AlekseyTsar3vi4/VPN-Tor-VPN/issues) or Staffordshire University channels.

@@ -1,4 +1,4 @@
-# VPN → Tor Exit → VPN Chain: Multi-Hop Anonymity System
+# VPN → Tor → VPN Chain: Multi-Hop Anonymity System
 
 This project was developed as part of a **Final Year Project (FYP)** in Cybersecurity, aiming to implement and test a resilient multi-hop traffic obfuscation model combining VPN and Tor in a layered privacy chain.
 

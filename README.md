@@ -48,11 +48,12 @@ vpn-tor-vpn-chain/
 │   ├── artefacts_README.md  # Atrefacts Disclaimer    
 │   └── checksums.txt        # SHA-256 hashes for artefact integrity
 ├── datasets/                # Test data for analysis
-│   ├── iperf_all_measurements.csv  # Performance metrics
-│   ├── timing_attack_pcaps.zip     # Packet captures for correlation tests
-│   ├── vpn1-test.ovpn             # Test configuration
-│   ├── vpn1-weak.ovpn             # Weak configuration for downgrade tests
-│   └── WinMTR_google_test.TXT     # Network diagnostic output
+│   ├── iperf_all_measurements.csv     # Performance metrics
+│   ├── fyp_performance_notebook.ipynb #.ipynb notebook with statistical and visual analysis of iperf_all_measurements.csv
+│   ├── timing_attack_pcaps.zip        # Packet captures for correlation tests
+│   ├── vpn1-test.ovpn                 # Test configuration
+│   ├── vpn1-weak.ovpn                 # Weak configuration for downgrade tests
+│   └── WinMTR_google_test.TXT         # Network diagnostic output
 ├── scripts/                 # Deployment automation scripts
 │   ├── setup_entry_vpn.sh   # Configures VPS1 (Entry VPN)
 │   ├── setup_exit_node.sh   # Configures VPS2 (Tor Exit Relay)
